@@ -26,14 +26,9 @@ export default function DashboardPage() {
   const [userName, setUserName] = useState('');
   const [hazards, setHazards] = useState<Hazard[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // ตัวกรองข้อมูล
   const [selectedDept, setSelectedDept] = useState('All');
   const [selectedYear, setSelectedYear] = useState('2026');
   const [selectedMonth, setSelectedMonth] = useState('All');
-
-  // 🌐 สถานะภาษา: 'TH' หรือ 'CN'
-  const [lang, setLang] = useState<'TH' | 'CN'>('TH');
 
   const [reviewModalItem, setReviewModalItem] = useState<Hazard | null>(null);
   const [rejectReason, setRejectReason] = useState('');
@@ -97,7 +92,7 @@ export default function DashboardPage() {
       .upload(fileName, file);
 
     if (uploadError) {
-      alert(lang === 'TH' ? `อัปโหลดรูปภาพไม่สำเร็จ: ${uploadError.message}` : `上传失败: ${uploadError.message}`);
+      alert(`อัปโหลดรูปภาพไม่สำเร็จ: ${uploadError.message}`);
       return;
     }
 
@@ -113,9 +108,9 @@ export default function DashboardPage() {
       .eq('id', itemId);
 
     if (updateError) {
-      alert(lang === 'TH' ? `เกิดข้อผิดพลาดในการบันทึกรูป: ${updateError.message}` : `保存图片错误: ${updateError.message}`);
+      alert(`เกิดข้อผิดพลาดในการบันทึกรูป: ${updateError.message}`);
     } else {
-      alert(lang === 'TH' ? '✅ แนบรูปถ่ายหลักฐานการแก้ไขสำเร็จ!' : '✅ 整改照片上传成功!');
+      alert('✅ แนบรูปถ่ายหลักฐานการแก้ไข (After Photo) สำเร็จ!');
       fetchHazards();
     }
   };
@@ -127,9 +122,9 @@ export default function DashboardPage() {
       .eq('id', item.id);
 
     if (error) {
-      alert(lang === 'TH' ? `เกิดข้อผิดพลาด: ${error.message}` : `错误: ${error.message}`);
+      alert(`เกิดข้อผิดพลาดในการปิดเคส: ${error.message}`);
     } else {
-      alert(lang === 'TH' ? '✅ อนุมัติปิดเคสเรียบร้อยแล้ว!' : '✅ 批准关闭案件成功!');
+      alert('✅ อนุมัติปิดเคสเรียบร้อยแล้ว!');
       setReviewModalItem(null);
       fetchHazards();
     }
@@ -137,7 +132,7 @@ export default function DashboardPage() {
 
   const handleRejectCase = async (item: Hazard) => {
     if (!rejectReason.trim()) {
-      alert(lang === 'TH' ? '⚠️ กรุณาระบุเหตุผลที่ตีกลับ' : '⚠️ 请填写退回原因');
+      alert('⚠️ กรุณาระบุเหตุผลที่ตีกลับให้พนักงานแก้ไขทราบ');
       return;
     }
 
@@ -150,15 +145,16 @@ export default function DashboardPage() {
       .eq('id', item.id);
 
     if (error) {
-      alert(lang === 'TH' ? `เกิดข้อผิดพลาด: ${error.message}` : `错误: ${error.message}`);
+      alert(`เกิดข้อผิดพลาดในการตีกลับ: ${error.message}`);
     } else {
-      alert(lang === 'TH' ? `❌ ตีกลับเคสเรียบร้อยแล้ว\nเหตุผล: ${rejectReason}` : `❌ 已退回整改\n原因: ${rejectReason}`);
+      alert(`❌ ตีกลับเคสเรียบร้อยแล้ว\nเหตุผล: ${rejectReason}`);
       setReviewModalItem(null);
       setRejectReason('');
       fetchHazards();
     }
   };
 
+  // 🖨️ ฟังก์ชันพิมพ์เฉพาะรายการเดี่ยว (Single Item Print)
   const handlePrintSingleItem = (item: Hazard) => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
@@ -180,16 +176,16 @@ export default function DashboardPage() {
           </style>
         </head>
         <body>
-          <h2>🔴 SUNSONG (THAILAND) CO., LTD. - Safety Inspection Report</h2>
+          <h2>🔴 SUNSONG (THAILAND) CO., LTD. - รายงานผลการตรวจสอบความปลอดภัย</h2>
           <div class="box">
-            <div class="row"><strong>รหัสเคส (Case No):</strong> ${item.hazard_no}</div>
-            <div class="row"><strong>รายการตรวจ (Inspection Item):</strong> ${item.type}</div>
-            <div class="row"><strong>วันที่ตรวจ (Inspection Date):</strong> ${item.inspection_date}</div>
-            <div class="row"><strong>แผนก / โซน (Dept / Zone):</strong> ${item.department} (${item.zone})</div>
-            <div class="row"><strong>ผู้รับผิดชอบ (Responsible):</strong> ${item.responsible}</div>
+            <div class="row"><strong>รหัสเคส:</strong> ${item.hazard_no}</div>
+            <div class="row"><strong>ประเภทความไม่ปลอดภัย:</strong> ${item.type}</div>
+            <div class="row"><strong>วันที่ตรวจ:</strong> ${item.inspection_date}</div>
+            <div class="row"><strong>แผนก / โซน:</strong> ${item.department} (${item.zone})</div>
+            <div class="row"><strong>ผู้รับผิดชอบ:</strong> ${item.responsible}</div>
             <div class="row"><strong>กำหนดแก้ไข (Due Date):</strong> ${dueDateStr}</div>
-            <div class="row"><strong>สถานะ (Status):</strong> ${item.status}</div>
-            <div class="row"><strong>รายละเอียด (Description):</strong> ${item.description || '-'}</div>
+            <div class="row"><strong>สถานะเคส:</strong> ${item.status}</div>
+            <div class="row"><strong>รายละเอียด:</strong> ${item.description || '-'}</div>
           </div>
           <div class="img-container">
             <div class="img-box">
@@ -223,13 +219,15 @@ export default function DashboardPage() {
     return matchDept && matchYear && matchMonth;
   });
 
-  const countOpen = filteredHazards.filter(i => i.status === 'OPEN').length;
-  const countClosed = filteredHazards.filter(i => i.status === 'CLOSED').length;
+  const countUnsafeAct = filteredHazards.filter(i => i.type?.includes('Unsafe Act')).length;
+  const countUnsafeCondition = filteredHazards.filter(i => i.type?.includes('Unsafe Condition')).length;
+  const countNearMiss = filteredHazards.filter(i => i.type?.includes('Near Miss')).length;
   const countOverdue = filteredHazards.filter(i => checkOverdue(i.inspection_date, i.due_days, i.status)).length;
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #fdf2f4 0%, #f1f5f9 50%, #e2e8f0 100%)', padding: '35px', fontFamily: 'system-ui, -apple-system, sans-serif', color: '#1e293b' }}>
       
+      {/* 🖨️ CSS สำหรับการพิมพ์: ซ่อนส่วนที่ไม่ต้องการ และจัดหน้าให้พอดีกระดาษ */}
       <style jsx global>{`
         @media print {
           .no-print {
@@ -252,6 +250,9 @@ export default function DashboardPage() {
             height: 50px !important;
             object-fit: cover !important;
           }
+          table {
+            font-size: 11px !important;
+          }
         }
         .print-header {
           display: none;
@@ -260,36 +261,26 @@ export default function DashboardPage() {
 
       <div style={{ maxWidth: '1450px', margin: '0 auto' }}>
         
+        {/* หัวกระเอดาษเฉพาะตอนสั่ง Print */}
         <div className="print-header">
           <h2 style={{ margin: 0, color: '#881337', fontSize: '20px' }}>🔴 SUNSONG (THAILAND) CO., LTD.</h2>
-          <p style={{ margin: '4px 0 0 0', fontSize: '14px', fontWeight: 'bold' }}>Safety Inspection Report / 安全检查与跟踪报告</p>
+          <p style={{ margin: '4px 0 0 0', fontSize: '14px', fontWeight: 'bold' }}>รายงานการตรวจสอบและติดตามความปลอดภัย (Safety Inspection Report)</p>
         </div>
 
-        {/* Top Header Card */}
+        {/* Top Header Card (ซ่อนตอน Print) */}
         <div className="no-print" style={{ background: 'linear-gradient(135deg, #881337 0%, #4c0519 100%)', padding: '30px 35px', borderRadius: '24px', boxShadow: '0 15px 35px rgba(136, 19, 55, 0.35)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', color: '#ffffff' }}>
           <div>
             <div style={{ fontSize: '15px', fontWeight: '900', color: '#fecdd3', letterSpacing: '1px', marginBottom: '4px' }}>
-              🔴 SUNSONG (THAILAND) CO., LTD. {lang === 'CN' && '松宋（泰国）有限公司'}
+              🔴 SUNSONG (THAILAND) CO., LTD.
             </div>
             <h1 style={{ fontSize: '26px', fontWeight: '900', margin: 0, letterSpacing: '0.5px' }}>
-              {lang === 'TH' ? '📊 Cloud Safety Inspection Dashboard & Report' : '📊 现场安全检查与跟踪仪表盘'}
+              📊 Cloud Safety Inspection Dashboard & Report
             </h1>
-            <p style={{ color: '#fecdd3', fontSize: '14px', margin: '6px 0 0 0', fontWeight: '500' }}>
-              {lang === 'TH' ? 'ระบบตรวจสอบ ติดตาม และรายงานความปลอดภัยออนไลน์' : '在线安全检查、跟踪与报告系统'}
-            </p>
+            <p style={{ color: '#fecdd3', fontSize: '14px', margin: '6px 0 0 0', fontWeight: '500' }}>ระบบตรวจสอบ ติดตาม และรายงานความปลอดภัยออนไลน์</p>
           </div>
-
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            {/* 🌐 ปุ่มสลับภาษา TH / CN */}
-            <button 
-              onClick={() => setLang(lang === 'TH' ? 'CN' : 'TH')}
-              style={{ backgroundColor: 'rgba(255, 255, 255, 0.25)', border: '1px solid rgba(255, 255, 255, 0.5)', padding: '10px 16px', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '13px', color: '#ffffff' }}
-            >
-              {lang === 'TH' ? '🇨🇳 中文' : '🇹🇭 ไทย'}
-            </button>
-
-            <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', padding: '10px 16px', borderRadius: '14px', fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>
-              👤 {userName || 'User'} | 👑 {userRole}
+            <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255, 255, 255, 0.4)', padding: '12px 18px', borderRadius: '14px', fontSize: '13px', fontWeight: '700', color: '#ffffff' }}>
+              👤 {userName || 'ผู้ใช้งาน'} | 👑 {userRole}
             </div>
             <button 
               onClick={() => {
@@ -297,68 +288,64 @@ export default function DashboardPage() {
                 localStorage.clear();
                 window.location.href = '/login';
               }}
-              style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '14px', fontWeight: '800', cursor: 'pointer', fontSize: '13px' }}
+              style={{ backgroundColor: '#ef4444', color: 'white', border: 'none', padding: '12px 18px', borderRadius: '14px', fontWeight: '800', cursor: 'pointer', fontSize: '13px', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)' }}
             >
-              {lang === 'TH' ? '🚪 ออกจากระบบ' : '🚪 登出'}
+              🚪 ออกจากระบบ
             </button>
           </div>
         </div>
 
-        {/* Filter Toolbar & Buttons */}
+        {/* Filter Toolbar & Buttons (ซ่อนตอน Print) */}
         <div className="no-print" style={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', padding: '20px 30px', borderRadius: '18px', boxShadow: '0 8px 25px rgba(0,0,0,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', border: '1px solid #cbd5e1', flexWrap: 'wrap', gap: '15px' }}>
           <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '14px', fontWeight: '700', color: '#334155' }}>{lang === 'TH' ? '🔍 ตัวกรองแผนก:' : '🔍 部门筛选:'}</span>
+            <span style={{ fontSize: '14px', fontWeight: '700', color: '#334155' }}>🔍 ตัวกรองข้อมูล:</span>
             
             <select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} style={{ padding: '10px 14px', borderRadius: '12px', border: '1px solid #94a3b8', fontSize: '14px', outline: 'none', backgroundColor: '#f8fafc', fontWeight: '600', color: '#1e293b', cursor: 'pointer' }}>
-              <option value="All">{lang === 'TH' ? 'ทุกแผนก (All Departments)' : '所有部门 (All)'}</option>
-              <option value="Assembly">Assembly {lang === 'CN' && '(总装)'}</option>
-              <option value="Metal">Metal {lang === 'CN' && '(金属)'}</option>
-              <option value="Hose">Hose {lang === 'CN' && '(胶管)'}</option>
-              <option value="Tesla">Tesla {lang === 'CN' && '(特斯拉)'}</option>
-              <option value="Engineer">Engineer {lang === 'CN' && '(工程)'}</option>
-              <option value="Quality Control">Quality Control {lang === 'CN' && '(品质控制)'}</option>
-              <option value="Other">Other {lang === 'CN' && '(其他)'}</option>
+              <option value="All">ทุกแผนก (All Departments)</option>
+              <option value="Assembly">Assembly</option>
+              <option value="Metal">Metal</option>
+              <option value="Hose">Hose</option>
+              <option value="Tesla">Tesla</option>
+              <option value="Engineer">Engineer</option>
             </select>
 
             <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} style={{ padding: '10px 14px', borderRadius: '12px', border: '1px solid #94a3b8', fontSize: '14px', outline: 'none', backgroundColor: '#f8fafc', fontWeight: '600', color: '#1e293b', cursor: 'pointer' }}>
-              <option value="2026">2026</option>
-              <option value="2025">2025</option>
-              <option value="All">{lang === 'TH' ? 'ทุกปี' : '所有年份'}</option>
+              <option value="2026">ปี 2026</option>
+              <option value="2025">ปี 2025</option>
+              <option value="All">ทุกปี</option>
             </select>
 
             <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} style={{ padding: '10px 14px', borderRadius: '12px', border: '1px solid #94a3b8', fontSize: '14px', outline: 'none', backgroundColor: '#f8fafc', fontWeight: '600', color: '#1e293b', cursor: 'pointer' }}>
-              <option value="All">{lang === 'TH' ? 'ทุกเดือน' : '所有月份'}</option>
-              <option value="01">{lang === 'TH' ? 'มกราคม' : '1月'}</option><option value="02">{lang === 'TH' ? 'กุมภาพันธ์' : '2月'}</option><option value="03">{lang === 'TH' ? 'มีนาคม' : '3月'}</option><option value="04">{lang === 'TH' ? 'เมษายน' : '4月'}</option><option value="05">{lang === 'TH' ? 'พฤษภาคม' : '5月'}</option><option value="06">{lang === 'TH' ? 'มิถุนายน' : '6月'}</option><option value="07">{lang === 'TH' ? 'กรกฎาคม' : '7月'}</option><option value="08">{lang === 'TH' ? 'สิงหาคม' : '8月'}</option><option value="09">{lang === 'TH' ? 'กันยายน' : '9月'}</option><option value="10">{lang === 'TH' ? 'ตุลาคม' : '10月'}</option><option value="11">{lang === 'TH' ? 'พฤศจิกายน' : '11月'}</option><option value="12">{lang === 'TH' ? 'ธันวาคม' : '12月'}</option>
+              <option value="All">ทุกเดือน (All Months)</option>
+              <option value="01">มกราคม</option><option value="02">กุมภาพันธ์</option><option value="03">มีนาคม</option><option value="04">เมษายน</option><option value="05">พฤษภาคม</option><option value="06">มิถุนายน</option><option value="07">กรกฎาคม</option><option value="08">สิงหาคม</option><option value="09">กันยายน</option><option value="10">ตุลาคม</option><option value="11">พฤศจิกายน</option><option value="12">ธันวาคม</option>
             </select>
           </div>
 
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <button onClick={() => window.print()} style={{ background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}>
-              {lang === 'TH' ? '🖨️ พิมพ์ทั้งหมด' : '🖨️ 打印全部'}
-            </button>
-            <button onClick={fetchHazards} style={{ backgroundColor: '#e2e8f0', border: '1px solid #cbd5e1', padding: '10px 20px', borderRadius: '12px', fontWeight: '700', color: '#334155', cursor: 'pointer' }}>
-              {lang === 'TH' ? '🔄 รีเฟรช' : '🔄 刷新'}
-            </button>
+            <button onClick={() => window.print()} style={{ background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 15px rgba(37, 99, 235, 0.4)' }}>🖨️ พิมพ์รายงานทั้งหมด</button>
+            <button onClick={fetchHazards} style={{ backgroundColor: '#e2e8f0', border: '1px solid #cbd5e1', padding: '10px 20px', borderRadius: '12px', fontWeight: '700', color: '#334155', cursor: 'pointer' }}>🔄 รีเฟรช</button>
             {!isGeneralStaff && (
-              <button onClick={() => router.push('/')} style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}>
-                {lang === 'TH' ? '+ บันทึกใหม่' : '+ 新增'}
-              </button>
+              <button onClick={() => router.push('/')} style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)' }}>+ บันทึกใหม่</button>
             )}
           </div>
         </div>
 
         {/* Vivid Stat Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '30px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '30px' }}>
           <div style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', border: '2px solid #f59e0b', borderLeft: '10px solid #d97706', padding: '20px', borderRadius: '18px', boxShadow: '0 8px 25px rgba(245, 158, 11, 0.2)' }}>
-            <div style={{ fontSize: '12px', fontWeight: '900', color: '#92400e', letterSpacing: '0.8px' }}>{lang === 'TH' ? '⚡ เคสที่ต้องดำเนินการ (OPEN)' : '⚡ 进行中案件 (OPEN)'}</div>
-            <div style={{ fontSize: '36px', fontWeight: '900', color: '#78350f', marginTop: '6px' }}>{countOpen}</div>
+            <div style={{ fontSize: '12px', fontWeight: '900', color: '#92400e', letterSpacing: '0.8px' }}>⚡ UNSAFE ACT</div>
+            <div style={{ fontSize: '36px', fontWeight: '900', color: '#78350f', marginTop: '6px' }}>{countUnsafeAct}</div>
           </div>
-          <div style={{ background: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)', border: '2px solid #22c55e', borderLeft: '10px solid #16a34a', padding: '20px', borderRadius: '18px', boxShadow: '0 8px 25px rgba(34, 197, 94, 0.2)' }}>
-            <div style={{ fontSize: '12px', fontWeight: '900', color: '#166534', letterSpacing: '0.8px' }}>{lang === 'TH' ? '✨ ปิดเคสแล้ว (CLOSED)' : '✨ 已关闭案件 (CLOSED)'}</div>
-            <div style={{ fontSize: '36px', fontWeight: '900', color: '#14532d', marginTop: '6px' }}>{countClosed}</div>
+          <div style={{ background: 'linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%)', border: '2px solid #f43f5e', borderLeft: '10px solid #e11d48', padding: '20px', borderRadius: '18px', boxShadow: '0 8px 25px rgba(244, 63, 94, 0.2)' }}>
+            <div style={{ fontSize: '12px', fontWeight: '900', color: '#9f1239', letterSpacing: '0.8px' }}>🔥 UNSAFE CONDITION</div>
+            <div style={{ fontSize: '36px', fontWeight: '900', color: '#881337', marginTop: '6px' }}>{countUnsafeCondition}</div>
+          </div>
+          <div style={{ background: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)', border: '2px solid #a855f7', borderLeft: '10px solid #9333ea', padding: '20px', borderRadius: '18px', boxShadow: '0 8px 25px rgba(168, 85, 247, 0.2)' }}>
+            <div style={{ fontSize: '12px', fontWeight: '900', color: '#6b21a8', letterSpacing: '0.8px' }}>⚠️ NEAR MISS</div>
+            <div style={{ fontSize: '36px', fontWeight: '900', color: '#581c87', marginTop: '6px' }}>{countNearMiss}</div>
           </div>
           <div style={{ background: 'linear-gradient(135deg, #fee2e2 0%, #fca5a5 100%)', border: '2px solid #dc2626', borderLeft: '10px solid #991b1b', padding: '20px', borderRadius: '18px', boxShadow: '0 8px 25px rgba(220, 38, 38, 0.2)' }}>
-            <div style={{ fontSize: '12px', fontWeight: '900', color: '#991b1b', letterSpacing: '0.8px' }}>{lang === 'TH' ? '🚨 เกินกำหนด (OVERDUE)' : '🚨 超期案件 (OVERDUE)'}</div>
+            <div style={{ fontSize: '12px', fontWeight: '900', color: '#991b1b', letterSpacing: '0.8px' }}>🚨 OVERDUE</div>
             <div style={{ fontSize: '36px', fontWeight: '900', color: '#7f1d1d', marginTop: '6px' }}>{countOverdue}</div>
           </div>
         </div>
@@ -366,24 +353,24 @@ export default function DashboardPage() {
         {/* Main Data Table Card */}
         <div style={{ backgroundColor: '#ffffff', borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', overflow: 'hidden', border: '2px solid #cbd5e1' }}>
           <div style={{ padding: '20px 30px', borderBottom: '2px solid #e2e8f0', fontWeight: '900', color: '#0f172a', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '10px', background: '#f1f5f9' }}>
-            {lang === 'TH' ? '📊 รายงานสรุปรายการความเสี่ยง และกำหนดเวลาแก้ไข' : '📊 风险及整改期限汇总报告'}
+            📊 รายงานสรุปรายการความเสี่ยง และกำหนดเวลาแก้ไข (Due Date)
           </div>
 
           {loading ? (
-            <div style={{ padding: '60px', textAlign: 'center', color: '#475569', fontSize: '16px', fontWeight: '700' }}>{lang === 'TH' ? 'กำลังโหลดข้อมูล...' : '正在加载数据...'}</div>
+            <div style={{ padding: '60px', textAlign: 'center', color: '#475569', fontSize: '16px', fontWeight: '700' }}>กำลังโหลดข้อมูล...</div>
           ) : filteredHazards.length === 0 ? (
-            <div style={{ padding: '60px', textAlign: 'center', color: '#475569', fontSize: '16px', fontWeight: '700' }}>{lang === 'TH' ? 'ไม่พบข้อมูลรายการความปลอดภัย' : '未找到安全数据'}</div>
+            <div style={{ padding: '60px', textAlign: 'center', color: '#475569', fontSize: '16px', fontWeight: '700' }}>ไม่พบข้อมูลรายการความปลอดภัยในเงื่อนไขนี้</div>
           ) : (
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
               <thead>
                 <tr style={{ backgroundColor: '#e2e8f0', color: '#1e293b', borderBottom: '2px solid #cbd5e1', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  <th style={{ padding: '14px 12px', fontWeight: '900' }}>{lang === 'TH' ? 'รหัสเคส' : '编号'}</th>
-                  <th style={{ padding: '14px 12px', fontWeight: '900' }}>{lang === 'TH' ? 'รายการตรวจ / วันที่' : '检查项目 / 日期'}</th>
-                  <th style={{ padding: '14px 12px', fontWeight: '900' }}>{lang === 'TH' ? 'แผนก / โซน' : '部门 / 区域'}</th>
-                  <th style={{ padding: '14px 12px', fontWeight: '900' }}>{lang === 'TH' ? 'กำหนดแก้ไข (Due Date)' : '整改期限 (Due Date)'}</th>
-                  <th style={{ padding: '14px 12px', fontWeight: '900' }}>{lang === 'TH' ? 'รูปก่อน / รูปหลัง' : '整改前后照片'}</th>
-                  <th style={{ padding: '14px 12px', fontWeight: '900' }}>{lang === 'TH' ? 'สถานะ' : '状态'}</th>
-                  <th className="no-print" style={{ padding: '14px 12px', textAlign: 'center', fontWeight: '900' }}>{lang === 'TH' ? 'จัดการ' : '操作'}</th>
+                  <th style={{ padding: '14px 12px', fontWeight: '900' }}>รหัสเคส</th>
+                  <th style={{ padding: '14px 12px', fontWeight: '900' }}>ประเภท / วันที่ตรวจ</th>
+                  <th style={{ padding: '14px 12px', fontWeight: '900' }}>แผนก / โซน</th>
+                  <th style={{ padding: '14px 12px', fontWeight: '900' }}>กำหนดแก้ไข (Due Date)</th>
+                  <th style={{ padding: '14px 12px', fontWeight: '900' }}>รูปก่อน / รูปหลัง</th>
+                  <th style={{ padding: '14px 12px', fontWeight: '900' }}>สถานะ</th>
+                  <th className="no-print" style={{ padding: '14px 12px', textAlign: 'center', fontWeight: '900' }}>จัดการ / ปริ้นท์รายเคส</th>
                 </tr>
               </thead>
               <tbody>
@@ -407,12 +394,12 @@ export default function DashboardPage() {
                       <td style={{ padding: '16px 12px' }}>
                         {isOverdue ? (
                           <span style={{ backgroundColor: '#fee2e2', color: '#dc2626', padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: '900', display: 'inline-block' }}>
-                            {lang === 'TH' ? `🚨 เกินกำหนด (${dueDateStr})` : `🚨 超期 (${dueDateStr})`}
+                            🚨 เกินกำหนด ({dueDateStr})
                           </span>
                         ) : (
                           <div>
                             <div style={{ fontWeight: '800', color: '#0f172a', fontSize: '12px' }}>📅 {dueDateStr}</div>
-                            <div style={{ fontSize: '10px', color: '#64748b', fontWeight: '600' }}>{lang === 'TH' ? `(ภายใน ${item.due_days || 7} วัน)` : `(${item.due_days || 7}天内)`}</div>
+                            <div style={{ fontSize: '10px', color: '#64748b', fontWeight: '600' }}>(ภายใน {item.due_days || 7} วัน)</div>
                           </div>
                         )}
                       </td>
@@ -431,10 +418,10 @@ export default function DashboardPage() {
                             </a>
                           ) : (
                             <div>
-                              <span style={{ color: '#e11d48', fontSize: '10px', fontWeight: '700', display: 'block', marginBottom: '2px' }}>{lang === 'TH' ? 'รอรูปแก้' : '待整改'}</span>
+                              <span style={{ color: '#e11d48', fontSize: '10px', fontWeight: '700', display: 'block', marginBottom: '2px' }}>รอรูปแก้</span>
                               {isGeneralStaff && (
                                 <label style={{ backgroundColor: '#d97706', color: 'white', padding: '3px 8px', borderRadius: '4px', fontSize: '9px', fontWeight: '800', cursor: 'pointer', display: 'inline-block' }}>
-                                  {lang === 'TH' ? '📷 แนบรูป' : '📷 上传'}
+                                  📷 แนบรูป After
                                   <input 
                                     type="file" 
                                     accept="image/*" 
@@ -462,19 +449,22 @@ export default function DashboardPage() {
                           fontWeight: '900',
                           display: 'inline-block'
                         }}>
-                          {item.status === 'CLOSED' ? (lang === 'TH' ? 'CLOSED' : '已关闭') : isOverdue ? (lang === 'TH' ? 'OVERDUE' : '超期') : (lang === 'TH' ? 'OPEN' : '进行中')}
+                          {item.status === 'CLOSED' ? 'CLOSED' : isOverdue ? 'OVERDUE' : 'OPEN'}
                         </span>
                       </td>
 
                       <td className="no-print" style={{ padding: '16px 12px', textAlign: 'center' }}>
                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center' }}>
+                          {/* ปุ่มปริ้นท์รายเคส */}
                           <button 
                             onClick={() => handlePrintSingleItem(item)}
                             style={{ backgroundColor: '#64748b', color: 'white', border: 'none', padding: '6px 10px', borderRadius: '8px', fontWeight: '800', cursor: 'pointer', fontSize: '11px' }}
+                            title="พิมพ์เฉพาะรายงานเคesนี้"
                           >
-                            {lang === 'TH' ? '🖨️ พิมพ์' : '🖨️ 打印'}
+                            🖨️ พิมพ์
                           </button>
 
+                          {/* ปุ่มตรวจสอบ/อนุมัติ (เฉพาะ Safety/ผู้บริหาร) */}
                           {!isGeneralStaff && (
                             item.status === 'OPEN' ? (
                               <button 
@@ -482,7 +472,7 @@ export default function DashboardPage() {
                                   if (hasAfterImage) {
                                     setReviewModalItem(item);
                                   } else {
-                                    alert(lang === 'TH' ? '⚠️ พนักงานยังไม่ได้แนบรูปถ่ายหลักฐานการแก้ไข' : '⚠️ 员工尚未上传整改照片');
+                                    alert('⚠️ พนักงานยังไม่ได้แนบรูปถ่ายหลักฐานการแก้ไข (After Photo)');
                                   }
                                 }}
                                 style={{ 
@@ -496,12 +486,10 @@ export default function DashboardPage() {
                                   fontSize: '11px' 
                                 }}
                               >
-                                {hasAfterImage ? (lang === 'TH' ? '🔍 ตรวจสอบ' : '🔍 审查') : (lang === 'TH' ? '🔒 รอรูป' : '🔒 待照片')}
+                                {hasAfterImage ? '🔍 ตรวจสอบ' : '🔒 รอรูป'}
                               </button>
                             ) : (
-                              <span style={{ color: '#065f46', fontWeight: '800', fontSize: '11px', backgroundColor: '#dcfce7', padding: '4px 8px', borderRadius: '6px' }}>
-                                {lang === 'TH' ? '✨ ปิดแล้ว' : '✨ 已关闭'}
-                              </span>
+                              <span style={{ color: '#065f46', fontWeight: '800', fontSize: '11px', backgroundColor: '#dcfce7', padding: '4px 8px', borderRadius: '6px' }}>✨ ปิดแล้ว</span>
                             )
                           )}
                         </div>
@@ -521,41 +509,35 @@ export default function DashboardPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
           <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '20px', width: '100%', maxWidth: '520px', boxShadow: '0 15px 30px rgba(0,0,0,0.3)' }}>
             
-            <h2 style={{ margin: '0 0 10px 0', fontSize: '20px', fontWeight: '900', color: '#881337' }}>
-              {lang === 'TH' ? `🔍 ตรวจสอบผลการแก้ไขเคส ${reviewModalItem.hazard_no}` : `🔍 审查整改案件 ${reviewModalItem.hazard_no}`}
-            </h2>
-            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '20px' }}>
-              {lang === 'TH' ? 'ตรวจสอบรูปถ่ายหลักฐาน และตัดสินใจอนุมัติหรือตีกลับ' : '检查整改前后照片并批准关闭或退回整改'}
-            </p>
+            <h2 style={{ margin: '0 0 10px 0', fontSize: '20px', fontWeight: '900', color: '#881337' }}>🔍 ตรวจสอบผลการแก้ไขเคส {reviewModalItem.hazard_no}</h2>
+            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '20px' }}>ตรวจสอบรูปถ่ายหลักฐาน (After Photo) และตัดสินใจว่าจะอนุมัติปิดเคส หรือตีกลับให้แก้ไขใหม่</p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px', backgroundColor: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #cbd5e1' }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', fontWeight: '800', color: '#475569', marginBottom: '5px' }}>{lang === 'TH' ? 'รูปก่อน (Before)' : '整改前 (Before)'}</div>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#475569', marginBottom: '5px' }}>รูปก่อน (Before)</div>
                 {reviewModalItem.image_url ? (
                   <a href={reviewModalItem.image_url} target="_blank" rel="noopener noreferrer">
                     <img src={reviewModalItem.image_url} alt="Before" style={{ width: '100%', height: '130px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
                   </a>
-                ) : <span style={{ fontSize: '12px' }}>{lang === 'TH' ? 'ไม่มีรูป' : '无'}</span>}
+                ) : <span style={{ fontSize: '12px' }}>ไม่มีรูป</span>}
               </div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '12px', fontWeight: '800', color: '#10b981', marginBottom: '5px' }}>{lang === 'TH' ? 'รูปหลัง (After)' : '整改后 (After)'}</div>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#10b981', marginBottom: '5px' }}>รูปหลัง (After)</div>
                 {reviewModalItem.after_image_url ? (
                   <a href={reviewModalItem.after_image_url} target="_blank" rel="noopener noreferrer">
                     <img src={reviewModalItem.after_image_url} alt="After" style={{ width: '100%', height: '130px', objectFit: 'cover', borderRadius: '8px', border: '2px solid #10b981' }} />
                   </a>
-                ) : <span style={{ fontSize: '12px' }}>{lang === 'TH' ? 'ไม่มีรูป' : '无'}</span>}
+                ) : <span style={{ fontSize: '12px' }}>ไม่มีรูป</span>}
               </div>
             </div>
 
             <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '5px' }}>
-                {lang === 'TH' ? 'เหตุผลกรณีตีกลับให้แก้ไข:' : '退回整改原因:'}
-              </label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '5px' }}>เหตุผลกรณีตีกลับให้แก้ไข:</label>
               <input 
                 type="text" 
                 value={rejectReason} 
                 onChange={(e) => setRejectReason(e.target.value)} 
-                placeholder={lang === 'TH' ? 'เช่น รูปไม่ชัดเจน, ยังแก้ไม่เรียบร้อย...' : '例如：照片不清晰、未整改彻底...'} 
+                placeholder="เช่น รูปไม่ชัดเจน, ยังแก้ไม่เรียบร้อย..." 
                 style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', boxSizing: 'border-box' }} 
               />
             </div>
@@ -566,7 +548,7 @@ export default function DashboardPage() {
                 onClick={() => handleApproveCase(reviewModalItem)}
                 style={{ flex: 1, backgroundColor: '#10b981', color: 'white', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}
               >
-                {lang === 'TH' ? '✅ อนุมัติปิดเคส' : '✅ 批准关闭 (Approve)'}
+                ✅ อนุมัติปิดเคส
               </button>
               
               <button 
@@ -574,7 +556,7 @@ export default function DashboardPage() {
                 onClick={() => handleRejectCase(reviewModalItem)}
                 style={{ flex: 1, backgroundColor: '#dc2626', color: 'white', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}
               >
-                {lang === 'TH' ? '❌ ตีกลับแก้ไข' : '❌ 退回整改 (Reject)'}
+                ❌ ตีกลับแก้ไข
               </button>
             </div>
 
@@ -584,7 +566,7 @@ export default function DashboardPage() {
                 onClick={() => { setReviewModalItem(null); setRejectReason(''); }}
                 style={{ backgroundColor: 'transparent', border: 'none', color: '#64748b', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
               >
-                {lang === 'TH' ? 'ปิดหน้าต่างนี้' : '关闭窗口'}
+                ปิดหน้าต่างนี้
               </button>
             </div>
 
